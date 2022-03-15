@@ -14,100 +14,116 @@ function multiply(num1, num2) {
 }
 
 function divide(num1, num2) {
-    if (typeof num1 !== 'number' || typeof num2 !== 'number') return 'error';
+    if (typeof num1 !== 'number' || typeof num2 !== 'number' 
+    || num2 === 0) return 'error';
     return num1 / num2;
 }
 
 function operate(operators, num) {
     let result = 0;
-    let auxAdd = 0;
-    let i = 0;
+    let index = 0;
+
     for (let operator of operators) {
 
         if (operator === '+') {
-            if (num[i]) {
-                if (!num[i + 1]) {
-                    auxAdd = add(auxAdd, Number(num[i]));
+            if (num[index]) {
+                if (!num[index + 1] || index > 0) {
+                    result = add(result, Number(num[index]));
+                    index += 1; 
                 } else {
-                    auxAdd += add(Number(num[i]), Number(num[i + 1]));
+                    result += add(Number(num[index]), Number(num[index + 1]));
+                    index += 2;
                 }
-                console.log(auxAdd);
             }
+            
         }
 
         if (operator === '-') {
-            if (num[i]) {
-                if (!num[i + 1]) {
-                    auxAdd = subtract(auxAdd, Number(num[i]));
+            if (num[index]) {
+                if (!num[index + 1] || i>0) {
+                    result = subtract(result, Number(num[index]));
+                    index += 1;
                 } else {
-                    auxAdd += subtract(Number(num[i]), Number(num[i + 1]));
+                    result += subtract(Number(num[index]), Number(num[index + 1]));
+                    index += 2;
                 }
-                console.log(auxAdd);
             }
         }
 
         if (operator === '*') {
-            if (!num[i + 1]) {
-                auxAdd = multiply(auxAdd, Number(num[i]));
+            if (!num[index + 1] || index > 0) {
+                result = multiply(result, Number(num[index]));
+                index += 1;
             } else {
-                auxAdd += multiply(Number(num[i]), Number(num[i + 1]));
+                result += multiply(Number(num[index]), Number(num[index + 1]));
+                index += 2;
             }
-            console.log(auxAdd);
         }
 
         if (operator === '/') {
-            if (!num[i + 1]) {
-                auxAdd = divide(auxAdd, Number(num[i]));
+            if (!num[index + 1] || index > 0) {
+                result = divide(result, Number(num[index]));
+                index++;
             } else {
-                auxAdd += divide(Number(num[i]), Number(num[i + 1]));
+                result += divide(Number(num[index]), Number(num[index + 1]));
+                index += 2;
             }
-            console.log(auxAdd);
         }
-        i += 2;
+        
     }
-
-
-
-    // if (operator === '+') {
-    //     result = add(num1, num2);
-    // }
-
-    // if (operator === '-') {
-    //     result = subtract(num1, num2);
-    // }
-
-    // if (operator === '*') {
-    //     result = multiply(num1, num2);
-    // }
-
-    // if (operator === '/') {
-    //     result = divide(num1, num2);
-    // }
-    result = auxAdd
+    if (typeof result !== 'number') return 'error';
     return result;
 }
 
-function prepareToOperate(value) {
-    // const removided = value.pop();  // removendo o caractere '='
-    // console.log(value);
-    let num = value.map((element, index) => {
-        if (element !== '+' && element !== '-' && element !== '*' && element !== '/' && element !== '=') return element;
+function prepareToOperate(inputValue) {
+    let num = inputValue.map(element => {
+        if (element !== '+' && element !== '-' && element !== '*' 
+        && element !== '/' && element !== '=') return element;
     });
-    let num1 = [''];
-    let operator = value.filter(element => element === '+' || element === '-' || element === '*' || element === '/');
-    let aux = 0;
 
+    let numbers = [''];
+    let operators = inputValue.filter(element => element === '+' 
+    || element === '-' || element === '*' || element === '/');
+    let aux = 0;
 
     for (let i = 0; i < num.length - 1; i++) {
         if (num[i] !== undefined) {
-            num1[aux] += num[i];
+            numbers[aux] += num[i];
         } else {
             aux++;
-            num1[aux] = '';
+            numbers[aux] = '';
         }
     }
 
-    const result = operate(operator, num1);
+    // Prioridade nos cálculos de * e /:
+    for (let i = 0; i < operators.length; i++) {
+        if (operators[i] === '*') {
+            operators.unshift(operators[i]);
+            operators.splice(i + 1, 1);
+            numbers.unshift(numbers[i + 1]);
+            numbers.unshift(numbers[i + 1]);
+            numbers.splice(i + 2, 2);
+        
+            if(operators[i] === '-') {
+                numbers[0] = Number(numbers[0] * (-1));
+                operators.splice(i, 1, '+');
+            }
+        }
+
+        if (operators[i] === '/') {
+            operators.unshift('*');
+            operators.splice(i + 1, 1);
+            numbers.unshift(Number(1 / numbers[i + 1]));
+            numbers.unshift(numbers[i + 1]);
+            numbers.splice(i + 2, 2);
+
+            if(operators[i] === '-') {
+                numbers[0] = Number(numbers[0] * (-1));
+                operators.splice(i, 1, '+');
+            }
+        }
+    }
+    const result = operate(operators, numbers);
     return result;
 
 }
@@ -115,14 +131,20 @@ function prepareToOperate(value) {
 const buttons = document.querySelector('.buttons');
 const display = document.querySelector('.display');
 const input = document.querySelector('#calculator');
+const decimal = document.querySelector('.decimal');
 
 buttons.addEventListener('click', e => {
     showDisplay(e.target);
 });
 
 function showDisplay(e) {
+    if(e.classList.length === 0) return;
+    
     input.value += e.textContent;
     const lastValue = input.value[input.value.length - 1];
+
+    if (lastValue === '+' || lastValue === '-' || lastValue === '/'
+    || lastValue === '*' || lastValue === 'C') decimal.disabled = false;
 
     if (lastValue === 'C') {
         input.value = '';
@@ -132,6 +154,10 @@ function showDisplay(e) {
     if (lastValue === '<') {
         input.value = input.value.slice(0, -2);
         return;
+    }
+
+    if(lastValue === '.') {
+        decimal.disabled = true;
     }
 
     if (lastValue === '=') {

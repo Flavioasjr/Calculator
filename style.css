@@ -2,24 +2,56 @@
     box-sizing: border-box;
 }
 
+body {
+    background-color: #00b8a98a;
+    margin-top: 20px;
+}
+
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: rgb(253, 250, 250);
+    width: max-content;
+    margin: 0 auto;
+    padding-bottom: 21.44px;
+}
+
+.buttons {
+    background-color: rgb(253, 250, 250);
 }
 
 input {
     font-size: 30px;
     margin: 0 auto 5px auto;
+    border: none;
+    border-bottom: 0.5px solid rgb(241, 240, 240);
+    padding: 10px;
+    height: 80px;
 }
-
-
-
 
 button {
     font-size: 30px;
     padding: 10px;
-    width: 75px;
+    width: 90px;
     height: 75px;
+    background: rgb(253, 250, 250);
+    border-radius: 15%;
+    border: none;
 }
 
+.btn:hover {
+    background: rgb(241, 240, 240);
+}
+
+.equal {
+    width: 180px;
+}
+
+.btn-color {
+    color: rgb(255, 123, 0);
+}
+
+.equal:hover {
+    background: rgb(255, 123, 0);
+}
